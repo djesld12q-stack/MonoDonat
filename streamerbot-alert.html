@@ -27,7 +27,7 @@
     gap: 0;
     pointer-events: none;
     opacity: 0;
-    transform: scale(0.6);
+    transform: translateY(-120px) scale(0.9);
     transition: none;
   }
 
@@ -40,8 +40,9 @@
   }
 
   @keyframes alertIn {
-    0%   { opacity: 0; transform: scale(0.5) translateY(30px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
+    0%   { opacity: 0; transform: translateY(-120px) scale(0.9); }
+    70%  { opacity: 1; transform: translateY(10px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   @keyframes alertOut {
@@ -71,16 +72,16 @@
     position: relative;
     z-index: 1;
     background: linear-gradient(145deg, #0f0f1a 0%, #1a1a2e 60%, #16213e 100%);
-    border: 2px solid rgba(255, 215, 0, 0.6);
+    border: 2px solid rgba(145, 70, 255, 0.75);
     border-radius: 20px;
     padding: 28px 40px 24px;
     min-width: 460px;
     max-width: 640px;
     text-align: center;
     box-shadow:
-      0 0 0 1px rgba(255, 215, 0, 0.15),
-      0 0 40px rgba(255, 215, 0, 0.25),
-      0 0 80px rgba(255, 215, 0, 0.1),
+      0 0 0 1px rgba(145, 70, 255, 0.2),
+      0 0 40px rgba(145, 70, 255, 0.35),
+      0 0 80px rgba(145, 70, 255, 0.15),
       0 20px 60px rgba(0, 0, 0, 0.8);
   }
 
@@ -90,7 +91,7 @@
     position: absolute;
     top: 0; left: 20px; right: 20px;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #FFD700, #FFA500, #FFD700, transparent);
+    background: linear-gradient(90deg, transparent, #9146FF, #BF94FF, #9146FF, transparent);
     border-radius: 0 0 4px 4px;
     animation: shimmer 2s ease-in-out infinite;
   }
@@ -105,7 +106,7 @@
     font-size: 40px;
     margin-bottom: 10px;
     display: block;
-    filter: drop-shadow(0 0 12px rgba(255,215,0,0.6));
+    filter: drop-shadow(0 0 12px rgba(145,70,255,0.7));
     animation: iconPulse 1.5s ease-in-out infinite;
   }
 
@@ -119,7 +120,7 @@
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 4px;
-    color: rgba(255, 215, 0, 0.6);
+    color: rgba(191, 148, 255, 0.8);
     text-transform: uppercase;
     margin-bottom: 6px;
   }
@@ -129,7 +130,7 @@
     font-size: 32px;
     font-weight: 800;
     color: #FFFFFF;
-    text-shadow: 0 0 20px rgba(255,215,0,0.4);
+    text-shadow: 0 0 20px rgba(145,70,255,0.5);
     line-height: 1.1;
     margin-bottom: 4px;
     word-break: break-word;
@@ -139,10 +140,10 @@
   .alert-amount {
     font-size: 48px;
     font-weight: 900;
-    color: #FFD700;
+    color: #BF94FF;
     text-shadow:
-      0 0 20px rgba(255, 215, 0, 0.7),
-      0 0 40px rgba(255, 215, 0, 0.3);
+      0 0 20px rgba(145, 70, 255, 0.8),
+      0 0 40px rgba(145, 70, 255, 0.4);
     line-height: 1;
     margin: 8px 0 16px;
     letter-spacing: -1px;
@@ -152,7 +153,7 @@
   .alert-divider {
     width: 60px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(145,70,255,0.6), transparent);
     margin: 0 auto 14px;
   }
 
@@ -167,14 +168,14 @@
     word-break: break-word;
   }
 
-  .alert-comment::before { content: '«'; color: #FFD700; margin-right: 2px; }
-  .alert-comment::after  { content: '»'; color: #FFD700; margin-left: 2px; }
+  .alert-comment::before { content: '«'; color: #BF94FF; margin-right: 2px; }
+  .alert-comment::after  { content: '»'; color: #BF94FF; margin-left: 2px; }
 
   /* ── Нижній підпис ── */
   .alert-footer {
     margin-top: 14px;
     font-size: 11px;
-    color: rgba(255, 215, 0, 0.35);
+    color: rgba(145, 70, 255, 0.45);
     letter-spacing: 1px;
     text-transform: uppercase;
   }
@@ -184,14 +185,14 @@
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 3px;
-    background: rgba(255,215,0,0.15);
+    background: rgba(145,70,255,0.15);
     border-radius: 0 0 20px 20px;
     overflow: hidden;
   }
 
   .alert-progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #FFD700, #FFA500);
+    background: linear-gradient(90deg, #9146FF, #BF94FF);
     width: 100%;
     transform-origin: left;
     transition: none;
@@ -302,7 +303,7 @@ function formatAmount(amount, currency) {
 function spawnParticles() {
   var container = document.getElementById('particles');
   container.innerHTML = '';
-  var colors = ['#FFD700','#FFA500','#FFE066','#FFFFFF','#FF8C00'];
+  var colors = ['#9146FF','#BF94FF','#D4AAFF','#FFFFFF','#6B2FD4'];
   for (var i = 0; i < 18; i++) {
     (function(i) {
       var p = document.createElement('div');
