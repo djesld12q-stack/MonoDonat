@@ -1499,7 +1499,8 @@ function doTwitchAuth() {
   var uri = encodeURIComponent(window.location.href.split('#')[0]);
   var scope = encodeURIComponent('chat:read chat:edit');
   window.location.href = 'https://id.twitch.tv/oauth2/authorize?client_id=' + TWITCH_CLIENT_ID +
-    '&redirect_uri=' + uri + '&response_type=token&scope=' + scope;
+    '&redirect_uri=' + uri + '&response_type=token&scope=' + scope +
+    '&force_verify=true';
 }
 
 // ═══════════════════════════════════════

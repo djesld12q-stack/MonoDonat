@@ -5,200 +5,141 @@
 <title>MonoDonaty Alert</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     background: transparent;
     overflow: hidden;
-    width: 100vw;
-    height: 100vh;
+    width: 100vw; height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-family: "Segoe UI", Arial, sans-serif;
   }
 
-  /* ── Контейнер алерту ── */
+  /* ── Підказка якщо немає токена ── */
+  #setup {
+    background: rgba(10,10,20,0.97);
+    border: 2px solid rgba(145,70,255,0.5);
+    border-radius: 16px;
+    padding: 32px 40px;
+    max-width: 560px; width: 90%;
+    color: #fff; text-align: center;
+    display: none;
+  }
+  #setup.visible { display: block; }
+  #setup h2 { color: #BF94FF; font-size: 18px; margin-bottom: 8px; }
+  #setup p  { color: rgba(255,255,255,.55); font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
+  #setup .url-box {
+    background: rgba(145,70,255,.08);
+    border: 1px solid rgba(145,70,255,.3);
+    border-radius: 8px; padding: 12px 16px;
+    font-family: monospace; font-size: 12px;
+    color: #BF94FF; word-break: break-all;
+    text-align: left; line-height: 1.7;
+  }
+  #setup .url-box span { color: #FFD700; }
+  #setup .hint { margin-top: 12px; font-size: 11px; color: rgba(255,255,255,.25); }
+
+  /* ── Алерт-обгортка ── */
   #alert-wrap {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex; justify-content: center;
+    padding-top: 40px;
     pointer-events: none;
     opacity: 0;
-    transform: translateY(-120px) scale(0.9);
-    transition: none;
+    transform: translateY(-140px) scale(0.9);
+  }
+  #alert-wrap.show { animation: aIn .55s cubic-bezier(.34,1.4,.64,1) forwards; }
+  #alert-wrap.hide { animation: aOut .4s ease-in forwards; }
+
+  @keyframes aIn {
+    0%   { opacity:0; transform:translateY(-140px) scale(.9); }
+    65%  { opacity:1; transform:translateY(12px) scale(1.02); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes aOut {
+    0%   { opacity:1; transform:translateY(0) scale(1); }
+    100% { opacity:0; transform:translateY(-60px) scale(.88); }
   }
 
-  #alert-wrap.show {
-    animation: alertIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
+  /* ── Частинки ── */
+  .particles { position:absolute; inset:-60px; pointer-events:none; z-index:0; }
+  .particle  { position:absolute; border-radius:50%; opacity:0; }
 
-  #alert-wrap.hide {
-    animation: alertOut 0.4s ease-in forwards;
-  }
-
-  @keyframes alertIn {
-    0%   { opacity: 0; transform: translateY(-120px) scale(0.9); }
-    70%  { opacity: 1; transform: translateY(10px) scale(1.02); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  @keyframes alertOut {
-    0%   { opacity: 1; transform: scale(1) translateY(0); }
-    100% { opacity: 0; transform: scale(0.8) translateY(-20px); }
-  }
-
-  /* ── Частинки/іскри ── */
-  .particles {
-    position: absolute;
-    inset: -60px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .particle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #FFD700;
-    opacity: 0;
-  }
-
-  /* ── Основна картка ── */
+  /* ── Картка ── */
   #alert-card {
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     background: linear-gradient(145deg, #0f0f1a 0%, #1a1a2e 60%, #16213e 100%);
-    border: 2px solid rgba(145, 70, 255, 0.75);
+    border: 2px solid rgba(145,70,255,.75);
     border-radius: 20px;
-    padding: 28px 40px 24px;
-    min-width: 460px;
-    max-width: 640px;
+    padding: 28px 44px 24px;
+    min-width: 460px; max-width: 640px;
     text-align: center;
     box-shadow:
-      0 0 0 1px rgba(145, 70, 255, 0.2),
-      0 0 40px rgba(145, 70, 255, 0.35),
-      0 0 80px rgba(145, 70, 255, 0.15),
-      0 20px 60px rgba(0, 0, 0, 0.8);
+      0 0 0 1px rgba(145,70,255,.2),
+      0 0 40px rgba(145,70,255,.35),
+      0 0 80px rgba(145,70,255,.15),
+      0 20px 60px rgba(0,0,0,.8);
   }
-
-  /* Верхня смуга-акцент */
   #alert-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 20px; right: 20px;
-    height: 3px;
+    content:""; position:absolute;
+    top:0; left:20px; right:20px; height:3px;
     background: linear-gradient(90deg, transparent, #9146FF, #BF94FF, #9146FF, transparent);
     border-radius: 0 0 4px 4px;
     animation: shimmer 2s ease-in-out infinite;
   }
+  @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:1} }
 
-  @keyframes shimmer {
-    0%, 100% { opacity: 0.6; }
-    50%       { opacity: 1; }
-  }
-
-  /* ── Значок монобанку ── */
   .alert-icon {
-    font-size: 40px;
-    margin-bottom: 10px;
-    display: block;
-    filter: drop-shadow(0 0 12px rgba(145,70,255,0.7));
-    animation: iconPulse 1.5s ease-in-out infinite;
+    font-size:40px; margin-bottom:10px; display:block;
+    filter: drop-shadow(0 0 12px rgba(145,70,255,.7));
+    animation: pulse 1.5s ease-in-out infinite;
   }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
 
-  @keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50%       { transform: scale(1.08); }
-  }
-
-  /* ── Заголовок «ДОНАТ» ── */
   .alert-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: rgba(191, 148, 255, 0.8);
-    text-transform: uppercase;
-    margin-bottom: 6px;
+    font-size:11px; font-weight:700; letter-spacing:4px;
+    color:rgba(191,148,255,.8); text-transform:uppercase; margin-bottom:6px;
   }
-
-  /* ── Ім'я донатера ── */
   .alert-name {
-    font-size: 32px;
-    font-weight: 800;
-    color: #FFFFFF;
-    text-shadow: 0 0 20px rgba(145,70,255,0.5);
-    line-height: 1.1;
-    margin-bottom: 4px;
-    word-break: break-word;
+    font-size:32px; font-weight:800; color:#fff;
+    text-shadow:0 0 20px rgba(145,70,255,.5);
+    line-height:1.1; margin-bottom:4px; word-break:break-word;
   }
-
-  /* ── Сума ── */
   .alert-amount {
-    font-size: 48px;
-    font-weight: 900;
-    color: #BF94FF;
-    text-shadow:
-      0 0 20px rgba(145, 70, 255, 0.8),
-      0 0 40px rgba(145, 70, 255, 0.4);
-    line-height: 1;
-    margin: 8px 0 16px;
-    letter-spacing: -1px;
+    font-size:48px; font-weight:900; color:#BF94FF;
+    text-shadow: 0 0 20px rgba(145,70,255,.8), 0 0 40px rgba(145,70,255,.4);
+    line-height:1; margin:8px 0 16px; letter-spacing:-1px;
   }
-
-  /* ── Розділювач ── */
   .alert-divider {
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(145,70,255,0.6), transparent);
+    width:60px; height:2px;
+    background: linear-gradient(90deg, transparent, rgba(145,70,255,.6), transparent);
     margin: 0 auto 14px;
   }
-
-  /* ── Коментар ── */
   .alert-comment {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.85);
-    font-style: italic;
-    line-height: 1.4;
-    max-width: 400px;
-    margin: 0 auto;
-    word-break: break-word;
+    font-size:16px; color:rgba(255,255,255,.85);
+    font-style:italic; line-height:1.4;
+    max-width:400px; margin:0 auto; word-break:break-word;
   }
-
-  .alert-comment::before { content: '«'; color: #BF94FF; margin-right: 2px; }
-  .alert-comment::after  { content: '»'; color: #BF94FF; margin-left: 2px; }
-
-  /* ── Нижній підпис ── */
+  .alert-comment::before { content:"«"; color:#BF94FF; margin-right:2px; }
+  .alert-comment::after  { content:"»"; color:#BF94FF; margin-left:2px; }
   .alert-footer {
-    margin-top: 14px;
-    font-size: 11px;
-    color: rgba(145, 70, 255, 0.45);
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    margin-top:14px; font-size:11px;
+    color:rgba(145,70,255,.45); letter-spacing:1px; text-transform:uppercase;
   }
 
-  /* ── Прогрес-бар (таймаут) ── */
+  /* Прогрес */
   .alert-progress {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: rgba(145,70,255,0.15);
-    border-radius: 0 0 20px 20px;
-    overflow: hidden;
+    position:absolute; bottom:0; left:0; right:0;
+    height:3px; background:rgba(145,70,255,.15);
+    border-radius:0 0 20px 20px; overflow:hidden;
   }
-
   .alert-progress-bar {
-    height: 100%;
+    height:100%;
     background: linear-gradient(90deg, #9146FF, #BF94FF);
-    width: 100%;
-    transform-origin: left;
-    transition: none;
+    width:100%; transform-origin:left;
   }
-
-  .alert-progress-bar.running {
+  .alert-progress-bar.run {
     transition: transform linear;
     transform: scaleX(0);
   }
@@ -206,191 +147,173 @@
 </head>
 <body>
 
+<div id="setup">
+  <h2>⚙️ MonoDonaty Alert — налаштування</h2>
+  <p>Mono токен не знайдено. Відкрий головний сайт <b>index.html</b>, введи токен у налаштуваннях і збережи — тоді перезавантаж цю сторінку.</p>
+  <div class="url-box">
+    1. Відкрий <span>index.html</span> у тому ж браузері<br>
+    2. Введи Monobank токен → натисни <span>Зберегти</span><br>
+    3. Поверніся сюди → F5 (або перезапусти OBS Browser Source)
+  </div>
+  <p class="hint">Токен зберігається в localStorage браузера і зчитується автоматично · Параметри в URL більше не потрібні</p>
+</div>
+
 <div id="alert-wrap">
   <div class="particles" id="particles"></div>
-
   <div id="alert-card">
     <span class="alert-icon">🎉</span>
     <div class="alert-label">Донат</div>
-    <div class="alert-name"  id="aName">Ім'я донатера</div>
+    <div class="alert-name"   id="aName">Ім'я</div>
     <div class="alert-amount" id="aAmount">100 грн</div>
     <div class="alert-divider"></div>
     <div class="alert-comment" id="aComment" style="display:none"></div>
     <div class="alert-footer">Monobank · Дякуємо за підтримку!</div>
-    <div class="alert-progress"><div class="alert-progress-bar" id="aProgress"></div></div>
+    <div class="alert-progress"><div class="alert-progress-bar" id="aProg"></div></div>
   </div>
 </div>
 
 <script>
-// ── Налаштування ─────────────────────────────────────────
-var DISPLAY_MS   = 7000;   // скільки показувати алерт (мс)
-var QUEUE_GAP_MS = 800;    // пауза між алертами
+// ── Читаємо налаштування з localStorage (збережені index.html) ──
+var _cfg = {};
+try { _cfg = JSON.parse(localStorage.getItem("mono_cfg") || "{}"); } catch(e) {}
 
-// ── Черга ────────────────────────────────────────────────
-var queue   = [];
-var showing = false;
-var hideTimer = null;
+var TOKEN    = _cfg.monoToken  || "";
+var ACCOUNT  = _cfg.accountId  || "";
+var MIN_AMT  = parseFloat(_cfg.minAmt    || "1");
+var INTERVAL = Math.max(61, parseInt(_cfg.interval || "61", 10));
+var SHOW_MS  = parseInt(_cfg.alertShow || "7000", 10);
 
-function enqueue(d) {
-  queue.push(d);
-  if (!showing) processQueue();
+// URL-параметри як запасний варіант (зворотна сумісність)
+var P = new URLSearchParams(location.search);
+if (!TOKEN)        TOKEN    = P.get("token")   || "";
+if (!ACCOUNT)      ACCOUNT  = P.get("account") || "";
+if (P.get("min"))      MIN_AMT  = parseFloat(P.get("min"));
+if (P.get("interval")) INTERVAL = Math.max(61, parseInt(P.get("interval"), 10));
+if (P.get("show"))     SHOW_MS  = parseInt(P.get("show"), 10);
+
+// ── Підказка якщо немає токена ───────────────────────
+if (!TOKEN) {
+  document.getElementById("setup").classList.add("visible");
 }
 
-function processQueue() {
+// ── Черга ────────────────────────────────────────────
+var queue = [], showing = false, hideTimer = null;
+
+function enqueue(d) { queue.push(d); if (!showing) next(); }
+
+function next() {
   if (!queue.length) { showing = false; return; }
-  showing = true;
-  showAlert(queue.shift());
+  showing = true; showAlert(queue.shift());
 }
 
-// ── Відображення алерту ──────────────────────────────────
 function showAlert(d) {
-  var wrap     = document.getElementById('alert-wrap');
-  var elName   = document.getElementById('aName');
-  var elAmount = document.getElementById('aAmount');
-  var elComment= document.getElementById('aComment');
-  var elProg   = document.getElementById('aProgress');
+  var wrap = document.getElementById("alert-wrap");
+  document.getElementById("aName").textContent   = d.name || "Анонім";
+  document.getElementById("aAmount").textContent = fmt(d.amount, d.currency);
+  var cmt = document.getElementById("aComment");
+  if (d.comment && d.comment.trim()) { cmt.textContent = d.comment.trim(); cmt.style.display = "block"; }
+  else cmt.style.display = "none";
 
-  // Заповнюємо дані
-  elName.textContent   = d.name   || 'Анонім';
-  elAmount.textContent = formatAmount(d.amount, d.currency);
+  var bar = document.getElementById("aProg");
+  wrap.classList.remove("show","hide"); bar.classList.remove("run");
+  bar.style.transitionDuration = "";
+  void wrap.offsetWidth;
 
-  if (d.comment && d.comment.trim()) {
-    elComment.textContent = d.comment.trim();
-    elComment.style.display = 'block';
-  } else {
-    elComment.style.display = 'none';
-  }
-
-  // Скидаємо стан
-  wrap.classList.remove('show', 'hide');
-  elProg.classList.remove('running');
-  elProg.style.transitionDuration = '';
-  void wrap.offsetWidth; // reflow
-
-  // Частинки
   spawnParticles();
+  wrap.classList.add("show");
+  setTimeout(function() { bar.classList.add("run"); bar.style.transitionDuration = SHOW_MS+"ms"; }, 60);
 
-  // Показуємо
-  wrap.classList.add('show');
-
-  // Прогрес-бар
-  setTimeout(function() {
-    elProg.classList.add('running');
-    elProg.style.transitionDuration = DISPLAY_MS + 'ms';
-  }, 50);
-
-  // Ховаємо
   clearTimeout(hideTimer);
   hideTimer = setTimeout(function() {
-    wrap.classList.remove('show');
-    wrap.classList.add('hide');
-    setTimeout(function() {
-      wrap.classList.remove('hide');
-      setTimeout(processQueue, QUEUE_GAP_MS);
-    }, 450);
-  }, DISPLAY_MS);
+    wrap.classList.replace("show","hide");
+    setTimeout(function() { wrap.classList.remove("hide"); setTimeout(next, 500); }, 420);
+  }, SHOW_MS);
 }
 
-function formatAmount(amount, currency) {
-  if (!amount) return '?';
+function fmt(amount, cur) {
   var n = parseFloat(amount);
-  var cur = currency || 'грн';
-  if (isNaN(n)) return amount + ' ' + cur;
-  return n.toLocaleString('uk-UA', { minimumFractionDigits: n % 1 === 0 ? 0 : 2 }) + ' ' + cur;
+  cur = cur || "грн";
+  if (isNaN(n)) return (amount||"?")+" "+cur;
+  return n.toLocaleString("uk-UA",{minimumFractionDigits: n%1===0?0:2})+" "+cur;
 }
 
-// ── Частинки ─────────────────────────────────────────────
+// ── Частинки ─────────────────────────────────────────
 function spawnParticles() {
-  var container = document.getElementById('particles');
-  container.innerHTML = '';
-  var colors = ['#9146FF','#BF94FF','#D4AAFF','#FFFFFF','#6B2FD4'];
-  for (var i = 0; i < 18; i++) {
-    (function(i) {
-      var p = document.createElement('div');
-      p.className = 'particle';
-      var angle  = (Math.random() * 360);
-      var dist   = 80 + Math.random() * 120;
-      var size   = 4 + Math.random() * 6;
-      var dur    = 600 + Math.random() * 600;
-      var delay  = Math.random() * 200;
-      p.style.cssText = [
-        'left:50%', 'top:50%',
-        'width:' + size + 'px', 'height:' + size + 'px',
-        'background:' + colors[Math.floor(Math.random()*colors.length)],
-        'border-radius:' + (Math.random() > 0.5 ? '50%' : '2px'),
-        'animation: none'
-      ].join(';');
-      container.appendChild(p);
-      setTimeout(function() {
-        var rad = angle * Math.PI / 180;
-        var tx = Math.cos(rad) * dist;
-        var ty = Math.sin(rad) * dist;
-        p.style.transition = 'transform ' + dur + 'ms ease-out, opacity ' + dur + 'ms ease-out';
-        p.style.opacity = '1';
-        p.style.transform = 'translate(calc(-50% + ' + tx + 'px), calc(-50% + ' + ty + 'px)) rotate(' + (Math.random()*360) + 'deg) scale(' + (0.3 + Math.random()*0.7) + ')';
-        setTimeout(function() { p.style.opacity = '0'; }, dur * 0.5);
-      }, delay);
-    })(i);
-  }
+  var c = document.getElementById("particles"); c.innerHTML = "";
+  var colors = ["#9146FF","#BF94FF","#D4AAFF","#fff","#6B2FD4"];
+  for (var i=0;i<20;i++) (function(){
+    var p = document.createElement("div"); p.className = "particle";
+    var sz=4+Math.random()*7, delay=Math.random()*180, dur=550+Math.random()*550;
+    var ang=Math.random()*360, dist=90+Math.random()*130;
+    p.style.cssText="left:50%;top:50%;width:"+sz+"px;height:"+sz+"px;background:"+colors[0|Math.random()*colors.length];
+    c.appendChild(p);
+    setTimeout(function(){
+      var rad=ang*Math.PI/180;
+      p.style.transition="transform "+dur+"ms ease-out,opacity "+dur+"ms ease-out";
+      p.style.opacity="1";
+      p.style.transform="translate(calc(-50% + "+Math.cos(rad)*dist+"px),calc(-50% + "+Math.sin(rad)*dist+"px))";
+      setTimeout(function(){ p.style.opacity="0"; }, dur*.45);
+    }, delay);
+  })();
 }
 
-// ── Дедуп ─────────────────────────────────────────────────
-var seenIds = new Set();
+// ── Monobank API ─────────────────────────────────────
+var seenIds = new Set(), accountId = ACCOUNT, pollTimer = null;
 
-function handleIncoming(raw) {
+function scheduleNext(sec) {
+  clearTimeout(pollTimer);
+  pollTimer = setTimeout(poll, (sec||INTERVAL)*1000);
+}
+
+async function poll() {
+  if (!TOKEN) return;
+  if (!accountId) {
+    try {
+      var info = await monoGet("https://api.monobank.ua/personal/client-info");
+      var accs = info.accounts || [];
+      var acc  = accs.find(function(a){ return a.currencyCode===980; }) || accs[0];
+      if (acc) accountId = acc.id;
+    } catch(e) { scheduleNext(30); return; }
+  }
   try {
-    var msg = (typeof raw === 'string') ? JSON.parse(raw) : raw;
-    if (!msg || !msg.event || msg.event.type !== 'MonobankDonation' || !msg.data) return;
-    var d = msg.data;
-    var uid = d.id || (d.name + '_' + d.amount + '_' + (d.ts || d._ts || Date.now()));
-    if (seenIds.has(uid)) return;
-    seenIds.add(uid);
-    if (seenIds.size > 200) {
-      var arr = Array.from(seenIds);
-      seenIds = new Set(arr.slice(arr.length - 100));
-    }
-    enqueue({
-      name:     d.user_name || d.name || 'Анонім',
-      amount:   d.amount    || 0,
-      currency: d.currency  || 'грн',
-      comment:  d.comment   || d.monoComment || ''
+    var now=Math.floor(Date.now()/1000), from=now-(INTERVAL*2+120);
+    var txs = await monoGet(
+      "https://api.monobank.ua/personal/statement/"+accountId+"/"+from+"/"+now
+    );
+    if (!Array.isArray(txs)) { scheduleNext(INTERVAL); return; }
+    txs.filter(function(tx){
+      return tx.amount>0 && !seenIds.has(tx.id) && Math.abs(tx.amount)/100>=MIN_AMT;
+    }).reverse().forEach(function(tx){
+      seenIds.add(tx.id);
+      enqueue({
+        name:     extractName(tx.description||""),
+        amount:   Math.abs(tx.amount)/100,
+        currency: ({980:"грн",840:"USD",978:"EUR"})[tx.currencyCode]||"грн",
+        comment:  tx.comment||""
+      });
     });
-  } catch(e) {}
-}
-
-// ── WebSocket (від server.js) ─────────────────────────────
-function connectWS() {
-  try {
-    var ws = new WebSocket('ws://127.0.0.1:8181/');
-    ws.onmessage = function(e) { handleIncoming(e.data); };
-    ws.onclose   = function()  { setTimeout(connectWS, 5000); };
-    ws.onerror   = function()  { ws.close(); };
+    if (seenIds.size>300){ var a=Array.from(seenIds); seenIds=new Set(a.slice(a.length-200)); }
   } catch(e) {
-    setTimeout(connectWS, 5000);
+    if (e.status===429){ scheduleNext(65); return; }
   }
+  scheduleNext(INTERVAL);
 }
-connectWS();
 
-// ── BroadcastChannel (від вкладки браузера напряму) ───────
-try {
-  var bc = new BroadcastChannel('monobank_donations');
-  bc.onmessage = function(e) { handleIncoming(e.data); };
-} catch(e) {}
+function monoGet(url) {
+  return fetch(url,{headers:{"X-Token":TOKEN}}).then(function(r){
+    if (r.status===429){ var e=new Error("429"); e.status=429; throw e; }
+    if (!r.ok) throw new Error("HTTP "+r.status);
+    return r.json();
+  });
+}
 
-// ── localStorage fallback (polling) ──────────────────────
-var _lastLsTs = 0;
-setInterval(function() {
-  try {
-    var raw = localStorage.getItem('mono_last_donation');
-    if (!raw) return;
-    var msg = JSON.parse(raw);
-    var ts = msg && msg.data && (msg.data.ts || msg.data._ts || 0);
-    if (ts && ts > _lastLsTs) {
-      _lastLsTs = ts;
-      handleIncoming(msg);
-    }
-  } catch(e) {}
-}, 300);
+function extractName(desc) {
+  if (!desc) return "Анонім";
+  var m=desc.match(/[ВвVv][іiIi][дdDd][:\s]+(.+)/);
+  return m?m[1].trim().slice(0,40):(desc.slice(0,40)||"Анонім");
+}
+
+if (TOKEN) setTimeout(poll, 3000);
 </script>
 </body>
 </html>
