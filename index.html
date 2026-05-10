@@ -1703,15 +1703,6 @@ function handleDonation(d) {
     }
   };
   try { localStorage.setItem('mono_last_donation', JSON.stringify(bcPayload)); } catch(e) {}
-
-  if (!d._fromServer && _srvOnline) {
-    fetch(_srvUrl + '/api/test-donation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: d.name, amount: d.amount, currency: d.currency, comment: d.comment }),
-      signal: AbortSignal.timeout(2000)
-    }).catch(function(){});
-  }
 }
 
 function processDonation(tx) {
@@ -1729,10 +1720,6 @@ function processDonation(tx) {
   };
   // Якщо сервер онлайн — він вже надішле цей донат через _srvWs.
   // Не обробляємо двічі.
-  if (_srvOnline) {
-    log('[DEDUP] Сервер онлайн — пропускаємо browser-side обробку', 'warn');
-    return;
-  }
   handleDonation(d);
 }
 
@@ -2782,89 +2769,19 @@ function setChk(id,v){ var el=document.getElementById(id); if(el) el.checked=v; 
 function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){} }
 
 // ═══════════════════════════════════════
-// СЕРВЕР — інтеграція з server.js
+// СЕРВЕР — відключено, всё в браузері
 // ═══════════════════════════════════════
-var _srvUrl    = 'http://127.0.0.1:7474';
+var _srvUrl    = '';
 var _srvOnline = false;
 var _srvStatusTimer = null;
 
-// Перевірити статус сервера
 function serverRefreshStatus() {
-  fetch(_srvUrl + '/api/status', { signal: AbortSignal.timeout(2000) })
-    .then(function(r){ return r.json(); })
-    .then(function(s) {
-      _srvOnline = true;
-      setBadge('Server', 'on', 'Сервер ✓');
-
-      var setEl = function(id, val) { var e = document.getElementById(id); if(e) e.textContent = val; };
-      var setColor = function(id, color) { var e = document.getElementById(id); if(e) e.style.color = color; };
-
-      setEl('srvStatusHttp', '● Запущено');        setColor('srvStatusHttp', 'var(--g)');
-      setEl('srvStatusIrc',  s.ircReady ? '● Підключено до #' + s.channel : '● Не підключено');
-      setColor('srvStatusIrc', s.ircReady ? 'var(--g)' : 'var(--r)');
-      var obsClients = Math.max(0, (s.wsClients || 0) - (s.browserActive || 0));
-      setEl('srvStatusWs', obsClients + ' підключено' + (obsClients > 0 ? ' ✓' : ' (відкрий OBS)'));
-      setColor('srvStatusWs', obsClients > 0 ? 'var(--g)' : 'var(--muted)');
-      setEl('srvStatusInterval', (s.pollingEnabled === false ? '⏸ Вимкнено' : 'кожні ' + s.interval + 'с'));
-      setColor('srvStatusInterval', s.pollingEnabled === false ? 'var(--r)' : 'var(--g)');
-      // Показуємо хто грає звук
-      var soundInfo = document.getElementById('srvSoundPriority');
-      if (soundInfo) {
-        if (s.browserActive > 0) {
-          soundInfo.textContent = '🔊 Звук: браузер (сервер мовчить)';
-          soundInfo.style.color = 'var(--g)';
-        } else {
-          soundInfo.textContent = '🔊 Звук: сервер (браузер закритий)';
-          soundInfo.style.color = 'var(--y)';
-        }
-        soundInfo.style.display = 'block';
-      }
-    })
-    .catch(function() {
-      _srvOnline = false;
-      setBadge('Server', 'off', 'Сервер офлайн');
-      var setEl = function(id, val) { var e = document.getElementById(id); if(e) e.textContent = val; };
-      var setColor = function(id, color) { var e = document.getElementById(id); if(e) e.style.color = color; };
-      setEl('srvStatusHttp', '● Не запущено');   setColor('srvStatusHttp', 'var(--r)');
-      setEl('srvStatusIrc',  '● Не підключено'); setColor('srvStatusIrc', 'var(--r)');
-      setEl('srvStatusWs',   '—');               setColor('srvStatusWs',  'var(--muted)');
-      setEl('srvStatusInterval', '—');
-    });
+  // no-op — сервер не використовується
+  return Promise.resolve();
 }
 
-// Надіслати конфіг на сервер
-function serverPushConfig(silent) {
-  if (!S.cfg) return;
-  var payload = JSON.stringify(Object.assign({}, S.cfg, {
-    twitchToken: S.twitchToken || S.cfg.twitchToken || null
-  }));
-  fetch(_srvUrl + '/api/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: payload,
-    signal: AbortSignal.timeout(2000)
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(r) {
-    if (!silent) {
-      _showSrvStatus('✅ Конфіг синхронізовано з сервером!', 'var(--g)');
-      log('Конфіг надіслано на сервер', 'ok');
-    }
-    _srvOnline = true;
-    setBadge('Server', 'on', 'Сервер ✓');
-    serverRefreshStatus();
-  })
-  .catch(function() {
-    if (!silent) _showSrvStatus('⚠ Сервер недоступний. Запусти Streamer.bot HTTP Server', 'var(--r)');
-  });
-}
-
-// Синхронізувати конфіг (кнопка)
-function serverSyncConfig() {
-  _showSrvStatus('⏳ Надсилаємо конфіг...', 'var(--y)');
-  saveConfig();
-  serverPushConfig(false);
-}
+function serverPushConfig(silent) { /* no-op */ }
+function serverSyncConfig()       { saveConfig(); }
 
 // ═══════════════════════════════════════
 // СЛУЖБА ПІДТРИМКИ — Formspree
@@ -2915,33 +2832,23 @@ function sendSupportMsg() {
 }
 
 // ═══════════════════════════════════════
-// POLLING КНОПКИ — Увімкнути / Вимкнути
+// POLLING КНОПКИ — Увімкнути / Вимкнути (браузерний polling)
 // ═══════════════════════════════════════
 function serverSendCommand(cmd) {
-  fetch(_srvUrl + '/api/control', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: cmd }),
-    signal: AbortSignal.timeout(2000)
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(r) {
-    if (cmd === 'start') {
-      _showSrvStatus('▶ Polling увімкнено! Сервер знову опитує Monobank.', 'var(--g)');
-      toast('Сервер', 'Polling увімкнено', '▶️');
-    } else {
-      _showSrvStatus('⏸ Polling вимкнено. Сервер не опитує Monobank.', 'var(--y)');
-      toast('Сервер', 'Polling вимкнено', '⏸');
-    }
-    setTimeout(serverRefreshStatus, 500);
-  })
-  .catch(function() {
-    _showSrvStatus('⚠ Сервер недоступний. Запусти Streamer.bot HTTP Server', 'var(--r)');
-  });
+  if (cmd === 'start') {
+    if (!S.running) startMonitoring();
+    else if (!S.pollTimer) schedulePoll(2);
+    toast('Polling', 'Polling увімкнено ▶️', '▶️');
+    log('Polling увімкнено', 'ok');
+  } else {
+    clearTimeout(S.pollTimer); S.pollTimer = null;
+    clearInterval(S.cdTimer);
+    toast('Polling', 'Polling вимкнено ⏸', '⏸');
+    log('Polling вимкнено', 'warn');
+  }
 }
 
-// Тест алерту через сервер
-// Флаг: поки true — _srvWs ігнорує всі повідомлення (щоб тест не задублювався)
+// Тест алерту — тільки через браузер (BC + localStorage)
 var _testInProgress = false;
 
 function serverTestAlert() {
@@ -2958,14 +2865,10 @@ function serverTestAlert() {
     _isTest:  true
   };
 
-  // Блокуємо _srvWs на 5с — сервер поверне цей донат назад, ігноруємо
-  _testInProgress = true;
-  setTimeout(function() { _testInProgress = false; }, 5000);
-
-  // 1. Звук + TTS + чат — один раз через handleDonation
+  // Звук + TTS + чат — через handleDonation
   handleDonation(testD);
 
-  // 2. BC + localStorage → тільки для alert.html overlay (без sound/TTS)
+  // BC + localStorage → alert.html в OBS підхоплює автоматично
   var bcPayload = {
     event: { type: 'MonobankDonation' },
     data: {
@@ -2981,22 +2884,7 @@ function serverTestAlert() {
   try { localStorage.setItem('mono_last_donation', JSON.stringify(bcPayload)); } catch(e) {}
   try { if (_bc) _bc.postMessage(bcPayload); } catch(e) {}
 
-  // 3. Надсилаємо на server.js тільки для OBS overlay — без звуку/TTS назад
-  fetch(_srvUrl + '/api/test-donation', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: testD.id, name: testD.name, amount: testD.amount, currency: testD.currency, comment: testD.comment, _isTest: true }),
-    signal: AbortSignal.timeout(2000)
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(r) {
-    _showSrvStatus('🎯 Тест: ' + (r.wsClients > 0 ? r.wsClients + ' OBS клієнт(ів)' : 'BC надіслано'), 'var(--g)');
-    toast('Тест алерт!', '🔊 Звук · 🗣 TTS · 💬 Чат · 🎯 Алерт', '🎯');
-  })
-  .catch(function() {
-    _showSrvStatus('✓ Тест надіслано (Streamer.bot офлайн)', 'var(--y)');
-    toast('Тест алерт!', '🔊 Звук · 🗣 TTS · 💬 Чат', '🎯');
-  });
+  toast('Тест алерт!', '🔊 Звук · 🗣 TTS · 💬 Чат · 🎯 Алерт', '🎯');
 }
 
 // BroadcastChannel — пряма передача між вкладками браузера (без server.js)
@@ -3026,99 +2914,9 @@ function serverBroadcastDonation(d) {
   // нічого — handleDonation вже все зробив
 }
 
-function _showSrvStatus(msg, color) {
-  var el = document.getElementById('srvSyncStatus');
-  if (!el) return;
-  el.style.display    = 'block';
-  el.style.color      = color;
-  el.style.background = 'rgba(255,255,255,.04)';
-  el.style.border     = '1px solid rgba(255,255,255,.08)';
-  el.style.padding    = '8px 12px';
-  el.style.borderRadius = '8px';
-  el.textContent = msg;
-}
-
-// Автоперевірка кожні 10с
-function _srvAutoCheck() {
-  serverRefreshStatus();
-  _srvStatusTimer = setTimeout(_srvAutoCheck, 10000);
-}
-
-// ── WebSocket від сервера — звук + координація пріоритету ──────
-var _srvWs = null;
-var _srvWsRetryTimer = null;
-
-function _connectSrvWs() {
-  if (_srvWs && (_srvWs.readyState === 0 || _srvWs.readyState === 1)) return;
-  try {
-    _srvWs = new WebSocket('ws://127.0.0.1:7474/');
-    _srvWs.onopen = function() {
-      // Повідомляємо сервер що браузер відкритий — він мовчатиме
-      _srvWs.send(JSON.stringify({ type: 'browser_active' }));
-      log('[SrvWS] Підключено до сервера. Polling зупинено — сервер поллить замість браузера.', 'ok');
-      clearTimeout(_srvWsRetryTimer);
-      // ЗУПИНЯЄМО браузерний polling — сервер вже поллить сам
-      clearTimeout(S.pollTimer);
-      clearInterval(S.cdTimer);
-      S.pollTimer = null;
-      document.getElementById('iNext').textContent = '🖥 сервер';
-      // Підтягуємо донати що прийшли поки браузер був закритий
-      setTimeout(fetchMissedDonations, 500);
-    };
-    _srvWs.onmessage = function(evt) {
-      try {
-        var msg = JSON.parse(evt.data);
-        if (msg && msg.event && msg.event.type === 'MonobankDonation' && msg.data) {
-          var d = msg.data;
-          // Поки йде тест — ігноруємо всі повідомлення від сервера
-          if (_testInProgress) { log('[SrvWS] Ігноруємо під час тесту', 'warn'); return; }
-          // Ігноруємо якщо сервер все ж передав _isTest
-          if (d._isTest) { log('[SrvWS] Тест-донат проігноровано', 'warn'); return; }
-          // Дедуп по id
-          if (d.id && _handledIds.has(d.id)) { log('[SrvWS] Дублікат: ' + d.id, 'warn'); return; }
-          log('[SrvWS] Донат від сервера: ' + (d.user_name || d.name || '?') + ' ' + (d.amount || ''), 'ok');
-          handleDonation({
-            id:          d.id,
-            name:        d.user_name || d.name || 'Анонім',
-            amount:      d.amount    || 0,
-            currency:    d.currency  || 'грн',
-            comment:     d.comment   || d.monoComment || '',
-            time:        d.ts ? new Date(d.ts) : new Date(),
-            _fromServer: true,
-            _ts:         d.ts || Date.now()
-          });
-        }
-      } catch(e) {}
-    };
-    _srvWs.onerror = function() {};
-    _srvWs.onclose = function() {
-      log('[SrvWS] Відключено від сервера, повтор через 8с... Браузер бере polling на себе.', 'warn');
-      _srvWs = null;
-      // ВІДНОВЛЮЄМО браузерний polling
-      if (S.running && !S.pollTimer) {
-        log('[SrvWS] Браузер відновлює polling самостійно', 'warn');
-        schedulePoll(5); // одразу через 5с
-      }
-      _srvWsRetryTimer = setTimeout(_connectSrvWs, 8000);
-    };
-  } catch(e) {
-    _srvWsRetryTimer = setTimeout(_connectSrvWs, 8000);
-  }
-}
-
-// Коли браузер закривається — сервер починає грати сам
-window.addEventListener('beforeunload', function() {
-  if (_srvWs && _srvWs.readyState === 1) {
-    _srvWs.send(JSON.stringify({ type: 'browser_inactive' }));
-  }
-});
-
-// Запускаємо підключення до сервера автоматично
-setTimeout(_connectSrvWs, 2000);
-
-// ═══════════════════════════════════════
-// STREAMER.BOT WEBSOCKET ІНТЕГРАЦІЯ
-// ═══════════════════════════════════════
+function _showSrvStatus(msg, color) { /* no-op */ }
+function _srvAutoCheck()            { /* no-op */ }
+function _connectSrvWs()            { /* no-op */ }
 
 // ═══════════════════════════════════════
 // ГЕНЕРАЦІЯ server.js
@@ -3835,53 +3633,9 @@ setTimeout(function() {
   }
 }, 2000);
 
-// ── Підтягуємо пропущені донати з сервера при відкритті ────────
-function fetchMissedDonations() {
-  var clearedAt = parseInt(localStorage.getItem('mono_cleared_at') || '0');
+// fetchMissedDonations — не потрібна, браузер сам поллить Monobank
+function fetchMissedDonations() { /* no-op — браузерний polling не потребує сервера */ }
 
-  fetch(_srvUrl + '/api/donations', { signal: AbortSignal.timeout(3000) })
-    .then(function(r) { return r.json(); })
-    .then(function(list) {
-      if (!Array.isArray(list) || !list.length) return;
-      var added = 0;
-      list.slice().reverse().forEach(function(d) {
-        if (!d.id || S.seenIds.has('srv_' + d.id)) return;
-
-        // Пропускаємо донати що були ДО очищення
-        // d.ts — мілісекунди, clearedAt — секунди
-        var donTimeSec = d.ts ? Math.floor(d.ts / 1000) : 0;
-        if (clearedAt > 0 && donTimeSec > 0 && donTimeSec <= clearedAt) {
-          S.seenIds.add('srv_' + d.id);
-          return;
-        }
-
-        S.seenIds.add('srv_' + d.id);
-        var don = {
-          name:     d.name     || d.user_name || 'Анонім',
-          amount:   d.amount   || 0,
-          currency: d.currency || 'грн',
-          comment:  d.comment  || d.monoComment || '',
-          time:     d.ts ? new Date(d.ts) : new Date()
-        };
-        S.donations.unshift(don);
-        added++;
-      });
-      if (added > 0) {
-        saveDonations();
-        var feed = document.getElementById('feed');
-        feed.innerHTML = '';
-        S.donations.forEach(function(d) { renderCard(d, true); });
-        updateStats(); updateTop(); refreshResendList();
-        document.getElementById('totalTag').style.display = 'inline';
-        log('📥 Підтягнуто ' + added + ' пропущених донатів з сервера', 'ok');
-        toast('Пропущені донати', 'Підтягнуто ' + added + ' донатів поки сайт був закритий', '📥');
-      }
-    })
-    .catch(function() {});
-}
-
-// Запустити автоперевірку
-setTimeout(_srvAutoCheck, 1500);
 </script>
 
 <!-- ═══ COPYRIGHT BANNER ═══ -->
