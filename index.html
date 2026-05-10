@@ -377,14 +377,8 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
         <span id="twitchStatusTxt">Підключено</span>
       </div>
-      <!-- прихований input для сумісності з JS що читає cfgChannel -->
       <input type="hidden" id="cfgClientId" value="pixdsf9kstx1mdkqx3x5z8rlq2icjt">
-      <div class="frow" style="margin-bottom:14px">
-        <div class="fgroup" style="width:100%">
-          <div class="flabel">Назва каналу (логін)</div>
-          <input class="finput" id="cfgChannel" placeholder="your_channel">
-        </div>
-      </div>
+      <input type="hidden" id="cfgChannel">
       <div id="twitchAuthArea">
         <button class="btn btn-twitch btn-full" onclick="doTwitchAuth()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
@@ -800,32 +794,27 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
       Як запустити сервер
     </div>
 
-    <!-- КНОПКА ГЕНЕРАЦІЇ server.js -->
-    <div style="margin-bottom:16px;padding:16px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:12px">
-      <div style="font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--y);margin-bottom:8px;letter-spacing:.05em">
-        ⚡Завантаж server.js⚡
+    <!-- Streamer.bot HTTP Server -->
+    <div style="margin-bottom:16px;padding:16px;background:rgba(255,100,0,.06);border:1px solid rgba(255,100,0,.25);border-radius:12px">
+      <div style="font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:#ff8844;margin-bottom:8px;letter-spacing:.05em">
+        🤖 Streamer.bot — HTTP Server
       </div>
-      <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;line-height:1.6">
-        Натисни кнопку — server.js згенерується з твоїм Mono токеном і налаштуваннями. Поклади його в ту саму папку що і <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px">monobankD-donaty.html</code>
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;line-height:1.7">
+        Замість Node.js використовуємо вбудований HTTP Server у Streamer.bot — Node.js встановлювати не потрібно!
       </div>
-      <div style="display:flex;gap:8px;flex-direction:column">
-        <button onclick="generateAndDownloadServerJS()" class="btn btn-primary btn-full" style="font-size:13px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Завантажити server.js
-        </button>
-        <button onclick="downloadStartBat()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;background:rgba(0,87,183,.12);border:1px solid rgba(0,87,183,.35);color:#7fb8ff;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all .2s" onmouseover="this.style.background='rgba(0,87,183,.25)'" onmouseout="this.style.background='rgba(0,87,183,.12)'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          Завантажити start.rar — автозапуск сервера
-        </button>
-        <div style="font-size:11px;color:var(--muted);padding:6px 10px;background:rgba(0,87,183,.04);border:1px solid rgba(0,87,183,.12);border-radius:8px">
-          💡 Завантажує <b style="color:#7fb8ff">Start.rar</b> — розпакуй і поклади <b style="color:#7fb8ff">start.bat</b> + <b style="color:#7fb8ff">start_hidden.vbs</b> поруч з server.js. Подвійний клік на start.bat запускає сервер у фоні без чорного вікна.
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:12px;color:#7dd3fc;line-height:1.6">
+          1. Відкрий Streamer.bot → <b style="color:#fff">Servers/Clients → HTTP Server</b>
         </div>
-        <a href="https://drive.usercontent.google.com/download?id=1qynk9KSfiD4lStXHtoNI90Wm30_xXVy7&export=download&authuser=0&confirm=t" target="_blank" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;background:rgba(255,100,0,.1);border:1px solid rgba(255,100,0,.3);color:#ff8844;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;text-decoration:none;box-sizing:border-box;margin-top:8px;transition:all .2s" onmouseover="this.style.background='rgba(255,100,0,.2)'" onmouseout="this.style.background='rgba(255,100,0,.1)'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Завантажити streamerbot-alert-settings
-        </a>
-        <div style="font-size:11px;color:var(--muted);margin-top:6px;padding:6px 10px;background:rgba(255,100,0,.04);border:1px solid rgba(255,100,0,.1);border-radius:8px">
-          📦 Архів містить: <b style="color:#ff8844"></b> + <b style="color:#ff8844">streamerbot-alert-settings📦</b> + <b style="color:#ff8844"></b> 
+        <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:12px;color:#7dd3fc;line-height:1.6">
+          2. У розділі <b style="color:#fff">Mappings</b> додай запис:<br>
+          &nbsp;&nbsp;Path: <code style="color:var(--y)">mono</code> &nbsp;→&nbsp; Folder: <code style="color:var(--y)">папка де лежить index.html</code>
+        </div>
+        <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:12px;color:#7dd3fc;line-height:1.6">
+          3. Увімкни <b style="color:#fff">Auto Start</b> та натисни <b style="color:#fff">Start Server</b>
+        </div>
+        <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:12px;color:#7dd3fc;line-height:1.6">
+          4. Відкрий у браузері: <a href="http://127.0.0.1:7474/mono/index.html" target="_blank" style="color:var(--y)">http://127.0.0.1:7474/mono/index.html</a>
         </div>
       </div>
       <div id="serverJsStatus" style="display:none;margin-top:10px;font-size:11px;padding:8px 12px;border-radius:8px"></div>
@@ -863,19 +852,16 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
 
     <div style="display:flex;flex-direction:column;gap:8px">
       <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-family:monospace;font-size:12px;color:#7dd3fc">
-        1. Встанови Node.js: <a href="https://nodejs.org" target="_blank" style="color:var(--y)">nodejs.org</a> (LTS версія)
+        1. Запусти Streamer.bot → <b style="color:#fff">Servers/Clients → HTTP Server</b>
       </div>
       <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-family:monospace;font-size:12px;color:#7dd3fc">
-        2. Поклади <b style="color:#fff">server.js</b> і <b style="color:#fff">monobankD-donaty.html</b> в одну папку
+        2. Mappings → додай Path: <b style="color:#fff">mono</b> → Folder: <b style="color:#fff">папка з index.html</b>
       </div>
       <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-family:monospace;font-size:12px;color:#7dd3fc">
-        3. Відкрий cmd в тій папці → <b style="color:#fff">node server.js</b>
+        3. Натисни <b style="color:#fff">Start Server</b> (Auto Start — увімкни)
       </div>
       <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-family:monospace;font-size:12px;color:#7dd3fc">
-        4. Відкрий <b style="color:#fff">http://127.0.0.1:8181</b> в браузері
-      </div>
-      <div style="padding:10px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-family:monospace;font-size:12px;color:#7dd3fc">
-        5. Натисни <b style="color:#fff">Синхронізувати конфіг</b> вгорі
+        4. Відкрий <b style="color:#fff">http://127.0.0.1:7474/mono/index.html</b> в браузері
       </div>
     </div>
   </div>
@@ -890,11 +876,11 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
       Додай Browser Source в OBS з URL нижче — алерти будуть показуватись при кожному донаті:
     </div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-      <code style="flex:1;padding:10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;color:var(--y)">http://127.0.0.1:8181/streamerbot-alert.html</code>
-      <button onclick="navigator.clipboard.writeText('http://127.0.0.1:8181/streamerbot-alert.html').then(()=>toast('Скопійовано!','URL в буфері','📋'))" style="padding:10px 14px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);color:var(--y);border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap">📋 Копіювати</button>
+      <code style="flex:1;padding:10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;color:var(--y)">http://127.0.0.1:7474/mono/streamerbot-alert.html</code>
+      <button onclick="navigator.clipboard.writeText('http://127.0.0.1:7474/mono/streamerbot-alert.html').then(()=>toast('Скопійовано!','URL в буфері','📋'))" style="padding:10px 14px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);color:var(--y);border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap">📋 Копіювати</button>
     </div>
     <div style="font-size:11px;color:var(--muted)">
-      Розмір: 700×200 px • Фон прозорий • WebSocket: <code style="color:var(--y)">ws://127.0.0.1:8181/</code>
+      Розмір: 700×200 px • Фон прозорий • Токен зчитується з localStorage автоматично
     </div>
   </div>
 
@@ -1519,6 +1505,13 @@ async function verifyTwitch() {
     if (r.ok) {
       var d = await r.json();
       S.twitchUser = d.login;
+      // Автоматично встановлюємо канал з логіну Twitch якщо не задано вручну
+      if (!S.cfg.channel) {
+        S.cfg.channel = d.login;
+        ls('mono_cfg', JSON.stringify(S.cfg));
+      }
+      var chanEl = document.getElementById('cfgChannel');
+      if (chanEl) chanEl.value = S.cfg.channel;
       setBadge('Twitch', 'wait', d.login + '...');
       document.getElementById('iTwUser').textContent = d.login;
       document.getElementById('iTwChan').textContent = S.cfg.channel || '—';
@@ -2791,7 +2784,7 @@ function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localSt
 // ═══════════════════════════════════════
 // СЕРВЕР — інтеграція з server.js
 // ═══════════════════════════════════════
-var _srvUrl    = 'http://127.0.0.1:8181';
+var _srvUrl    = 'http://127.0.0.1:7474';
 var _srvOnline = false;
 var _srvStatusTimer = null;
 
@@ -2862,7 +2855,7 @@ function serverPushConfig(silent) {
     serverRefreshStatus();
   })
   .catch(function() {
-    if (!silent) _showSrvStatus('⚠ Сервер недоступний. Запусти: node server.js', 'var(--r)');
+    if (!silent) _showSrvStatus('⚠ Сервер недоступний. Запусти Streamer.bot HTTP Server', 'var(--r)');
   });
 }
 
@@ -2943,7 +2936,7 @@ function serverSendCommand(cmd) {
     setTimeout(serverRefreshStatus, 500);
   })
   .catch(function() {
-    _showSrvStatus('⚠ Сервер недоступний. Запусти: node server.js', 'var(--r)');
+    _showSrvStatus('⚠ Сервер недоступний. Запусти Streamer.bot HTTP Server', 'var(--r)');
   });
 }
 
@@ -3001,7 +2994,7 @@ function serverTestAlert() {
     toast('Тест алерт!', '🔊 Звук · 🗣 TTS · 💬 Чат · 🎯 Алерт', '🎯');
   })
   .catch(function() {
-    _showSrvStatus('✓ Тест надіслано (server.js офлайн)', 'var(--y)');
+    _showSrvStatus('✓ Тест надіслано (Streamer.bot офлайн)', 'var(--y)');
     toast('Тест алерт!', '🔊 Звук · 🗣 TTS · 💬 Чат', '🎯');
   });
 }
@@ -3058,7 +3051,7 @@ var _srvWsRetryTimer = null;
 function _connectSrvWs() {
   if (_srvWs && (_srvWs.readyState === 0 || _srvWs.readyState === 1)) return;
   try {
-    _srvWs = new WebSocket('ws://127.0.0.1:8181/');
+    _srvWs = new WebSocket('ws://127.0.0.1:7474/');
     _srvWs.onopen = function() {
       // Повідомляємо сервер що браузер відкритий — він мовчатиме
       _srvWs.send(JSON.stringify({ type: 'browser_active' }));
