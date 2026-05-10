@@ -435,6 +435,10 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
             Відтворити
           </button>
           <button class="btn btn-outline" style="padding:5px 12px;font-size:11px" onclick="clearFeed()">Очистити</button>
+          <button onclick="serverTestAlert()" style="padding:5px 14px;font-size:11px;display:flex;align-items:center;gap:5px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.35);color:var(--y);border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='rgba(255,215,0,.2)'" onmouseout="this.style.background='rgba(255,215,0,.1)'" title="Тест алерту для OBS">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            🎯 Тест алерту
+          </button>
           <!-- TTS швидкий тогл -->
           <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px">
             <span style="font-size:14px">🗣</span>
@@ -1532,6 +1536,7 @@ function handleDonation(d) {
   var bcPayload = {
     event: { type: 'MonobankDonation' },
     data: {
+      id:          d.id || ('idx_' + Date.now()),
       user_name:   d.name,
       monoAmount:  (d.amount || 0) + ' ' + (d.currency || 'грн'),
       monoComment: d.comment || '',
@@ -1543,6 +1548,7 @@ function handleDonation(d) {
     }
   };
   try { localStorage.setItem('mono_last_donation', JSON.stringify(bcPayload)); } catch(e) {}
+  try { if (_bc) _bc.postMessage(bcPayload); } catch(e) {}
 }
 
 function processDonation(tx) {
