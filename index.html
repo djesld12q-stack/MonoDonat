@@ -377,29 +377,21 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
         <span id="twitchStatusTxt">Підключено</span>
       </div>
-      <div class="step-list">
-        <div class="step-item"><p>Зайди на <a href="https://dev.twitch.tv/console/apps" target="_blank">dev.twitch.tv/console/apps</a> → <b>Register Your Application</b></p></div>
-        <div class="step-item"><p>Name: будь-яке · OAuth Redirect URL: <code id="thisRedirectUrl" style="font-size:10px;background:rgba(255,215,0,.08);padding:2px 6px;border-radius:4px;color:var(--y)">...</code> · Category: <b>Chat Bot</b> · Client Type: <b>Public</b> <button onclick="navigator.clipboard.writeText(document.getElementById('thisRedirectUrl').textContent).then(function(){toast('Скопійовано!','URL redirect в буфері','📋')})" style="margin-left:4px;padding:2px 8px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:var(--y);border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit">📋 Копіювати</button></p></div>
-        <div class="step-item"><p>Натисни <b>Create</b> → <b>Manage</b> → скопіюй <b>Client ID</b></p></div>
-      </div>
+      <!-- прихований input для сумісності з JS що читає cfgChannel -->
+      <input type="hidden" id="cfgClientId" value="pixdsf9kstx1mdkqx3x5z8rlq2icjt">
       <div class="frow" style="margin-bottom:14px">
-        <div class="fgroup">
-          <div class="flabel">Client ID</div>
-          <input class="finput" id="cfgClientId" value="4xcg9my36dgifag7b0xkm6xxui1r59" readonly style="opacity:.5;cursor:default" title="Вбудований Client ID">
-        </div>
-        <div class="fgroup">
+        <div class="fgroup" style="width:100%">
           <div class="flabel">Назва каналу (логін)</div>
           <input class="finput" id="cfgChannel" placeholder="your_channel">
         </div>
       </div>
-      <div id="twitchAuthArea" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div id="twitchAuthArea">
         <button class="btn btn-twitch btn-full" onclick="doTwitchAuth()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
           Авторизуватись через Twitch
         </button>
-        <div class="fhint" style="text-align:center;margin-top:8px">Відкриється сторінка Twitch. Після авторизації повернешся автоматично.</div>
       </div>
-      <div id="twitchLogoutArea" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+      <div id="twitchLogoutArea" style="display:none">
         <button class="btn btn-danger btn-full" onclick="twitchLogout()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Вийти з Twitch
@@ -993,7 +985,7 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
 // STATE
 // ═══════════════════════════════════════
 // ── Вбудований Twitch Client ID (публічний додаток, без секрету) ──
-var TWITCH_CLIENT_ID = '4xcg9my36dgifag7b0xkm6xxui1r59';
+var TWITCH_CLIENT_ID = 'pixdsf9kstx1mdkqx3x5z8rlq2icjt';
 
 var S = {
   cfg: {},
