@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>MonoDonaty Alert</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+  }
+
+  /* ── Контейнер алерту ── */
+  #alert-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: none;
+  }
+
+  #alert-wrap.show {
+    animation: alertIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  #alert-wrap.hide {
+    animation: alertOut 0.4s ease-in forwards;
+  }
+
+  @keyframes alertIn {
+    0%   { opacity: 0; transform: scale(0.5) translateY(30px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes alertOut {
+    0%   { opacity: 1; transform: scale(1) translateY(0); }
+    100% { opacity: 0; transform: scale(0.8) translateY(-20px); }
+  }
+
+  /* ── Частинки/іскри ── */
+  .particles {
+    position: absolute;
+    inset: -60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #FFD700;
+    opacity: 0;
+  }
+
+  /* ── Основна картка ── */
+  #alert-card {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(145deg, #0f0f1a 0%, #1a1a2e 60%, #16213e 100%);
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    border-radius: 20px;
+    padding: 28px 40px 24px;
+    min-width: 460px;
+    max-width: 640px;
+    text-align: center;
+    box-shadow:
+      0 0 0 1px rgba(255, 215, 0, 0.15),
+      0 0 40px rgba(255, 215, 0, 0.25),
+      0 0 80px rgba(255, 215, 0, 0.1),
+      0 20px 60px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Верхня смуга-акцент */
+  #alert-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20px; right: 20px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #FFD700, #FFA500, #FFD700, transparent);
+    border-radius: 0 0 4px 4px;
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.6; }
+    50%       { opacity: 1; }
+  }
+
+  /* ── Значок монобанку ── */
+  .alert-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    display: block;
+    filter: drop-shadow(0 0 12px rgba(255,215,0,0.6));
+    animation: iconPulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.08); }
+  }
+
+  /* ── Заголовок «ДОНАТ» ── */
+  .alert-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: rgba(255, 215, 0, 0.6);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* ── Ім'я донатера ── */
+  .alert-name {
+    font-size: 32px;
+    font-weight: 800;
+    color: #FFFFFF;
+    text-shadow: 0 0 20px rgba(255,215,0,0.4);
+    line-height: 1.1;
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+
+  /* ── Сума ── */
+  .alert-amount {
+    font-size: 48px;
+    font-weight: 900;
+    color: #FFD700;
+    text-shadow:
+      0 0 20px rgba(255, 215, 0, 0.7),
+      0 0 40px rgba(255, 215, 0, 0.3);
+    line-height: 1;
+    margin: 8px 0 16px;
+    letter-spacing: -1px;
+  }
+
+  /* ── Розділювач ── */
+  .alert-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent);
+    margin: 0 auto 14px;
+  }
+
+  /* ── Коментар ── */
+  .alert-comment {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.85);
+    font-style: italic;
+    line-height: 1.4;
+    max-width: 400px;
+    margin: 0 auto;
+    word-break: break-word;
+  }
+
+  .alert-comment::before { content: '«'; color: #FFD700; margin-right: 2px; }
+  .alert-comment::after  { content: '»'; color: #FFD700; margin-left: 2px; }
+
+  /* ── Нижній підпис ── */
+  .alert-footer {
+    margin-top: 14px;
+    font-size: 11px;
+    color: rgba(255, 215, 0, 0.35);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── Прогрес-бар (таймаут) ── */
+  .alert-progress {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255,215,0,0.15);
+    border-radius: 0 0 20px 20px;
+    overflow: hidden;
+  }
+
+  .alert-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    width: 100%;
+    transform-origin: left;
+    transition: none;
+  }
+
+  .alert-progress-bar.running {
+    transition: transform linear;
+    transform: scaleX(0);
+  }
+</style>
+</head>
+<body>
+
+<div id="alert-wrap">
+  <div class="particles" id="particles"></div>
+
+  <div id="alert-card">
+    <span class="alert-icon">🎉</span>
+    <div class="alert-label">Донат</div>
+    <div class="alert-name"  id="aName">Ім'я донатера</div>
+    <div class="alert-amount" id="aAmount">100 грн</div>
+    <div class="alert-divider"></div>
+    <div class="alert-comment" id="aComment" style="display:none"></div>
+    <div class="alert-footer">Monobank · Дякуємо за підтримку!</div>
+    <div class="alert-progress"><div class="alert-progress-bar" id="aProgress"></div></div>
+  </div>
+</div>
+
+<script>
+// ── Налаштування ─────────────────────────────────────────
+var DISPLAY_MS   = 7000;   // скільки показувати алерт (мс)
+var QUEUE_GAP_MS = 800;    // пауза між алертами
+
+// ── Черга ────────────────────────────────────────────────
+var queue   = [];
+var showing = false;
+var hideTimer = null;
+
+function enqueue(d) {
+  queue.push(d);
+  if (!showing) processQueue();
+}
+
+function processQueue() {
+  if (!queue.length) { showing = false; return; }
+  showing = true;
+  showAlert(queue.shift());
+}
+
+// ── Відображення алерту ──────────────────────────────────
+function showAlert(d) {
+  var wrap     = document.getElementById('alert-wrap');
+  var elName   = document.getElementById('aName');
+  var elAmount = document.getElementById('aAmount');
+  var elComment= document.getElementById('aComment');
+  var elProg   = document.getElementById('aProgress');
+
+  // Заповнюємо дані
+  elName.textContent   = d.name   || 'Анонім';
+  elAmount.textContent = formatAmount(d.amount, d.currency);
+
+  if (d.comment && d.comment.trim()) {
+    elComment.textContent = d.comment.trim();
+    elComment.style.display = 'block';
+  } else {
+    elComment.style.display = 'none';
+  }
+
+  // Скидаємо стан
+  wrap.classList.remove('show', 'hide');
+  elProg.classList.remove('running');
+  elProg.style.transitionDuration = '';
+  void wrap.offsetWidth; // reflow
+
+  // Частинки
+  spawnParticles();
+
+  // Показуємо
+  wrap.classList.add('show');
+
+  // Прогрес-бар
+  setTimeout(function() {
+    elProg.classList.add('running');
+    elProg.style.transitionDuration = DISPLAY_MS + 'ms';
+  }, 50);
+
+  // Ховаємо
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(function() {
+    wrap.classList.remove('show');
+    wrap.classList.add('hide');
+    setTimeout(function() {
+      wrap.classList.remove('hide');
+      setTimeout(processQueue, QUEUE_GAP_MS);
+    }, 450);
+  }, DISPLAY_MS);
+}
+
+function formatAmount(amount, currency) {
+  if (!amount) return '?';
+  var n = parseFloat(amount);
+  var cur = currency || 'грн';
+  if (isNaN(n)) return amount + ' ' + cur;
+  return n.toLocaleString('uk-UA', { minimumFractionDigits: n % 1 === 0 ? 0 : 2 }) + ' ' + cur;
+}
+
+// ── Частинки ─────────────────────────────────────────────
+function spawnParticles() {
+  var container = document.getElementById('particles');
+  container.innerHTML = '';
+  var colors = ['#FFD700','#FFA500','#FFE066','#FFFFFF','#FF8C00'];
+  for (var i = 0; i < 18; i++) {
+    (function(i) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      var angle  = (Math.random() * 360);
+      var dist   = 80 + Math.random() * 120;
+      var size   = 4 + Math.random() * 6;
+      var dur    = 600 + Math.random() * 600;
+      var delay  = Math.random() * 200;
+      p.style.cssText = [
+        'left:50%', 'top:50%',
+        'width:' + size + 'px', 'height:' + size + 'px',
+        'background:' + colors[Math.floor(Math.random()*colors.length)],
+        'border-radius:' + (Math.random() > 0.5 ? '50%' : '2px'),
+        'animation: none'
+      ].join(';');
+      container.appendChild(p);
+      setTimeout(function() {
+        var rad = angle * Math.PI / 180;
+        var tx = Math.cos(rad) * dist;
+        var ty = Math.sin(rad) * dist;
+        p.style.transition = 'transform ' + dur + 'ms ease-out, opacity ' + dur + 'ms ease-out';
+        p.style.opacity = '1';
+        p.style.transform = 'translate(calc(-50% + ' + tx + 'px), calc(-50% + ' + ty + 'px)) rotate(' + (Math.random()*360) + 'deg) scale(' + (0.3 + Math.random()*0.7) + ')';
+        setTimeout(function() { p.style.opacity = '0'; }, dur * 0.5);
+      }, delay);
+    })(i);
+  }
+}
+
+// ── Дедуп ─────────────────────────────────────────────────
+var seenIds = new Set();
+
+function handleIncoming(raw) {
+  try {
+    var msg = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+    if (!msg || !msg.event || msg.event.type !== 'MonobankDonation' || !msg.data) return;
+    var d = msg.data;
+    var uid = d.id || (d.name + '_' + d.amount + '_' + (d.ts || d._ts || Date.now()));
+    if (seenIds.has(uid)) return;
+    seenIds.add(uid);
+    if (seenIds.size > 200) {
+      var arr = Array.from(seenIds);
+      seenIds = new Set(arr.slice(arr.length - 100));
+    }
+    enqueue({
+      name:     d.user_name || d.name || 'Анонім',
+      amount:   d.amount    || 0,
+      currency: d.currency  || 'грн',
+      comment:  d.comment   || d.monoComment || ''
+    });
+  } catch(e) {}
+}
+
+// ── WebSocket (від server.js) ─────────────────────────────
+function connectWS() {
+  try {
+    var ws = new WebSocket('ws://127.0.0.1:8181/');
+    ws.onmessage = function(e) { handleIncoming(e.data); };
+    ws.onclose   = function()  { setTimeout(connectWS, 5000); };
+    ws.onerror   = function()  { ws.close(); };
+  } catch(e) {
+    setTimeout(connectWS, 5000);
+  }
+}
+connectWS();
+
+// ── BroadcastChannel (від вкладки браузера напряму) ───────
+try {
+  var bc = new BroadcastChannel('monobank_donations');
+  bc.onmessage = function(e) { handleIncoming(e.data); };
+} catch(e) {}
+
+// ── localStorage fallback (polling) ──────────────────────
+var _lastLsTs = 0;
+setInterval(function() {
+  try {
+    var raw = localStorage.getItem('mono_last_donation');
+    if (!raw) return;
+    var msg = JSON.parse(raw);
+    var ts = msg && msg.data && (msg.data.ts || msg.data._ts || 0);
+    if (ts && ts > _lastLsTs) {
+      _lastLsTs = ts;
+      handleIncoming(msg);
+    }
+  } catch(e) {}
+}, 300);
+</script>
+</body>
+</html>

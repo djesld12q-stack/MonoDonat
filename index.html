@@ -385,7 +385,7 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
       <div class="frow" style="margin-bottom:14px">
         <div class="fgroup">
           <div class="flabel">Client ID</div>
-          <input class="finput" id="cfgClientId" placeholder="4xcg9my36dgifag7b0xkm6...">
+          <input class="finput" id="cfgClientId" value="4xcg9my36dgifag7b0xkm6xxui1r59" readonly style="opacity:.5;cursor:default" title="Вбудований Client ID">
         </div>
         <div class="fgroup">
           <div class="flabel">Назва каналу (логін)</div>
@@ -992,6 +992,9 @@ textarea.finput{resize:vertical;min-height:58px;line-height:1.5}
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
+// ── Вбудований Twitch Client ID (публічний додаток, без секрету) ──
+var TWITCH_CLIENT_ID = '4xcg9my36dgifag7b0xkm6xxui1r59';
+
 var S = {
   cfg: {},
   donations: [],
@@ -1214,7 +1217,7 @@ function saveConfig() {
     monoToken:          getVal('cfgMonoToken'),
     minAmt:             parseFloat(getVal('cfgMinAmt2'))    || 1,
     interval:           parseInt(getVal('cfgInterval2'))    || 60,
-    clientId:           getVal('cfgClientId'),
+    clientId:           TWITCH_CLIENT_ID,
     channel:            getVal('cfgChannel'),
     template:           getVal('cfgTemplate'),
     templateNoComment:  getVal('cfgTemplateNoComment'),
@@ -1413,11 +1416,9 @@ function onAccountSelectChange() {
 
 function saveAndStart() {
   var token    = getVal('cfgMonoToken');
-  var clientId = getVal('cfgClientId');
   var channel  = getVal('cfgChannel');
 
   if (!token)    { alert('Введи Monobank токен!'); return; }
-  if (!clientId) { alert('Введи Twitch Client ID!'); return; }
   if (!channel)  { alert('Введи назву каналу!'); return; }
 
   // Зчитати вибраний рахунок/jar із select
@@ -1494,12 +1495,10 @@ function twitchLogout() {
 // TWITCH AUTH
 // ═══════════════════════════════════════
 function doTwitchAuth() {
-  var clientId = getVal('cfgClientId');
-  if (!clientId) { alert('Введи Client ID!'); return; }
   saveConfig();
   var uri = encodeURIComponent(window.location.href.split('#')[0]);
   var scope = encodeURIComponent('chat:read chat:edit');
-  window.location.href = 'https://id.twitch.tv/oauth2/authorize?client_id=' + clientId +
+  window.location.href = 'https://id.twitch.tv/oauth2/authorize?client_id=' + TWITCH_CLIENT_ID +
     '&redirect_uri=' + uri + '&response_type=token&scope=' + scope;
 }
 
